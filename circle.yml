@@ -1,0 +1,24 @@
+machine:
+  environment:
+    BOOT_JVM_OPTIONS: "-Xmx3g"
+  java:
+    version: oraclejdk8
+dependencies:
+  cache_directories:
+    - ~/.boot
+    - ~/bin
+  pre:
+    - sudo sysctl fs.inotify.max_user_watches=16384
+    - .ci/install-boot.sh
+    - boot
+
+test:
+  override:
+    - .ci/run-tests.sh
+
+deployment:
+  dev:
+    branch: master
+    commands:
+    - git fetch --depth=1000000
+    - boot deploy-dev

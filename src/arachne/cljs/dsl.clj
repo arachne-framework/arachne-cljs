@@ -84,10 +84,10 @@
 
 (s/def ::compiler-options
   (s/keys
-    :req-un [(or ::output-to ::modules)]
+    :req-un [(or ::output-to ::modules)
+             ::output-dir]
     :opt-un [::main
              ::asset-path
-             ::output-dir
              ::foreign-libs
              ::warnings
              ::closure-warnings
@@ -161,50 +161,67 @@
                :arachne.cljs.closure-define/annotate annotate})
          defines-map)))
 
-(s/fdef options
-  :args (s/cat :arachne-id ::core-specs/id
-               :compiler-opts ::compiler-options))
+(defn- compiler-options
+  "Given a conformed map of compiler options, return an entity map for a arachne.cljs/CompilerOptions entity."
+  [opts]
+  (u/map-transform opts {}
+    :main :arachne.cljs.compiler-options/main keyword
+    :asset-path :arachne.cljs.compiler-options/asset-path identity
+    :output-to :arachne.cljs.compiler-options/output-to identity
+    :output-dir :arachne.cljs.compiler-options/output-dir identity
+    :foreign-libs :arachne.cljs.compiler-options/foreign-libs #(map foreign-lib %)
+    :modules :arachne.cljs.compiler-options/modules modules
+    :warnings :arachne.cljs.compiler-options/common-warnings? (fn [[tag val]] (when (= :boolean tag) val))
+    :warnings :arachne.cljs.compiler-options/warnings warnings
+    :closure-warnings :arachne.cljs.compiler-options/closure-warnings closure-warnings
+    :closure-defines :arachne.cljs.compiler-options/closure-defines closure-defines
+    :optimizations :arachne.cljs.compiler-options/optimizations identity
+    :source-map :arachne.cljs.compiler-options/source-map (fn [[tag val]] (str val))
+    :verbose :arachne.cljs.compiler-options/verbose identity
+    :pretty-print :arachne.cljs.compiler-options/pretty-print identity
+    :target :arachne.cljs.compiler-options/target identity
+    :externs :arachne.cljs.compiler-options/externs vec
+    :preloads :arachne.cljs.compiler-options/preloads #(vec (map keyword %))
+    :source-map-path :arachne.cljs.compiler-options/source-map-path identity
+    :source-map-asset-path :arachne.cljs.compiler-options/source-map-asset-path identity
+    :source-map-timestamp :arachne.cljs.compiler-options/source-map-timestamp identity
+    :cache-analysis :arachne.cljs.compiler-options/cache-analysis identity
+    :recompile-dependents :arachne.cljs.compiler-options/recompile-dependents identity
+    :static-fns :arachne.cljs.compiler-options/static-fns identity
+    :load-tests :arachne.cljs.compiler-options/load-tests identity
+    :elide-asserts :arachne.cljs.compiler-options/elide-asserts identity
+    :pseudo-names :arachne.cljs.compiler-options/pseudo-names identity
+    :print-input-delimiter :arachne.cljs.compiler-options/print-input-delimiter identity
+    :output-wrapper :arachne.cljs.compiler-options/output-wrapper identity
+    :libs :arachne.cljs.compiler-options/libs vec
+    :preamble :arachne.cljs.compiler-options/preamble vec
+    :hashbang :arachne.cljs.compiler-options/hashbang identity
+    :compiler-stats :arachne.cljs.compiler-options/compiler-stats identity
+    :language-in :arachne.cljs.compiler-options/language-in identity
+    :language-out :arachne.cljs.compiler-options/language-out identity
+    :closure-extra-annotations :arachne.cljs.compiler-options/closure-extra-annotations vec
+    :anon-fn-naming-policy :arachne.cljs.compiler-options/anon-fn-naming-policy identity
+    :optimize-constants :arachne.cljs.compiler-options/optimize-constants identity))
 
-(defdsl options
-  "Define ClojureScript compiler options"
-  [arachne-id compiler-opts]
-  (let [conformed (s/conform ::compiler-options compiler-opts)
-        entity (u/map-transform conformed {:arachne/id arachne-id}
-                 :main :arachne.cljs.compiler-options/main keyword
-                 :asset-path :arachne.cljs.compiler-options/asset-path identity
-                 :output-to :arachne.cljs.compiler-options/output-to identity
-                 :output-dir :arachne.cljs.compiler-options/output-dir identity
-                 :foreign-libs :arachne.cljs.compiler-options/foreign-libs #(map foreign-lib %)
-                 :modules :arachne.cljs.compiler-options/modules modules
-                 :warnings :arachne.cljs.compiler-options/common-warnings? (fn [[tag val]] (when (= :boolean tag) val))
-                 :warnings :arachne.cljs.compiler-options/warnings warnings
-                 :closure-warnings :arachne.cljs.compiler-options/closure-warnings closure-warnings
-                 :closure-defines :arachne.cljs.compiler-options/closure-defines closure-defines
-                 :optimizations :arachne.cljs.compiler-options/optimizations identity
-                 :source-map :arachne.cljs.compiler-options/source-map (fn [[tag val]] (str val))
-                 :verbose :arachne.cljs.compiler-options/verbose identity
-                 :pretty-print :arachne.cljs.compiler-options/pretty-print identity
-                 :target :arachne.cljs.compiler-options/target identity
-                 :externs :arachne.cljs.compiler-options/externs vec
-                 :preloads :arachne.cljs.compiler-options/preloads #(vec (map keyword %))
-                 :source-map-path :arachne.cljs.compiler-options/source-map-path identity
-                 :source-map-asset-path :arachne.cljs.compiler-options/source-map-asset-path identity
-                 :source-map-timestamp :arachne.cljs.compiler-options/source-map-timestamp identity
-                 :cache-analysis :arachne.cljs.compiler-options/cache-analysis identity
-                 :recompile-dependents :arachne.cljs.compiler-options/recompile-dependents identity
-                 :static-fns :arachne.cljs.compiler-options/static-fns identity
-                 :load-tests :arachne.cljs.compiler-options/load-tests identity
-                 :elide-asserts :arachne.cljs.compiler-options/elide-asserts identity
-                 :pseudo-names :arachne.cljs.compiler-options/pseudo-names identity
-                 :print-input-delimiter :arachne.cljs.compiler-options/print-input-delimiter identity
-                 :output-wrapper :arachne.cljs.compiler-options/output-wrapper identity
-                 :libs :arachne.cljs.compiler-options/libs vec
-                 :preamble :arachne.cljs.compiler-options/preamble vec
-                 :hashbang :arachne.cljs.compiler-options/hashbang identity
-                 :compiler-stats :arachne.cljs.compiler-options/compiler-stats identity
-                 :language-in :arachne.cljs.compiler-options/language-in identity
-                 :language-out :arachne.cljs.compiler-options/language-out identity
-                 :closure-extra-annotations :arachne.cljs.compiler-options/closure-extra-annotations vec
-                 :anon-fn-naming-policy :arachne.cljs.compiler-options/anon-fn-naming-policy identity
-                 :optimize-constants :arachne.cljs.compiler-options/optimize-constants identity)]
-    (script/transact [entity])))
+(s/def ::input ::core-specs/id)
+
+(s/def ::build-options
+  (s/keys* :req-un [::compiler-options]))
+
+(s/fdef build
+  :args (s/cat :arachne-id ::core-specs/id
+               :build-options ::build-options))
+
+(defn- input
+  "Return the entity map for an input, given its Arachne ID"
+  [aid]
+  {:arachne/id aid})
+
+(defdsl build
+  "Define ClojureScript compiler options by defining a Asset Transformer that builds ClojureScript"
+  [arachne-id & build-options]
+  (let [conformed (s/conform ::build-options build-options)
+        transformer (u/map-transform conformed {:arachne/id arachne-id
+                                                :arachne.component/constructor :arachne.cljs.build/build-transformer}
+                      :compiler-options :arachne.cljs.build/compiler-options compiler-options)]
+    (script/transact [transformer])))

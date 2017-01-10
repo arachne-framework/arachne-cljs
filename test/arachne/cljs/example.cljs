@@ -1,5 +1,3 @@
 (ns arachne.cljs.example)
 
-(.log js/console "Greetings.")
-
-
+(.log js/console "Hello world!")

@@ -4,7 +4,7 @@
  :license {"Apache Software License 2.0" "http://www.apache.org/licenses/LICENSE-2.0"}
  :deps [[org.clojure/clojure "1.9.0-alpha14" :scope "provided"]
         [org.clojure/clojurescript "1.9.293"]
-        [org.arachne-framework/arachne-assets "0.1.0-master-0021-cd84103"]
+        [org.arachne-framework/arachne-assets "0.1.0-master-0023-cf0ec93"]
         [adzerk/boot-test "1.1.2" :scope "test"]
         [org.clojure/test.check "0.9.0" :scope "test"]
         [org.clojure/tools.namespace "0.2.11" :scope "test"]
@@ -14,7 +14,8 @@
          :exclusions [org.slf4j/slf4j-api
                       org.slf4j/slf4j-nop
                       org.slf4j/slf4j-log4j12
-                      org.slf4j/log4j-over-slf4j]
+                      org.slf4j/log4j-over-slf4j
+                      com.google.guava/guava]
          :scope "test"]
         [ch.qos.logback/logback-classic "1.1.3" :scope "test"]
         [org.slf4j/jul-to-slf4j "1.7.12" :exclusions [org.slf4j/slf4j-api] :scope "test"]

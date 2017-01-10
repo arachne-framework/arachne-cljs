@@ -83,7 +83,7 @@
 (comment
 
   (def cfg (arachne/build-config [:org.arachne-framework/arachne-cljs]
-             '(arachne.cljs-test/build-cfg)))
+             '(arachne.cljs-test/build-cfg "/tmp/out" true)))
 
   (def rt (rt/init cfg [:arachne/id :test/rt]))
 

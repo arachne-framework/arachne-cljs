@@ -82,17 +82,19 @@
 (s/def ::asset-path ::string)
 
 
+;; Note: these are more strict than CLJS itself, but they avoid several confusing edge cases, and are almost
+;; certainly what you want anyway.
 (s/def ::compiler-options
   (s/keys
     :req-un [(or ::output-to ::modules)
-             ::output-dir]
-    :opt-un [::main
-             ::asset-path
+             ::output-dir
+             ::optimizations
+             ::main]
+    :opt-un [::asset-path
              ::foreign-libs
              ::warnings
              ::closure-warnings
              ::closure-defines
-             ::optimizations
              ::source-map
              ::verbose
              ::pretty-print

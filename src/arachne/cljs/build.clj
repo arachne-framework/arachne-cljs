@@ -10,7 +10,8 @@
     [arachne.core.util :as u]
     [arachne.assets.pipeline :as p]
     [arachne.fileset :as fs]
-    [clojure.java.io :as io]))
+    [clojure.java.io :as io]
+    [clojure.tools.logging :as log]))
 
 (defn- foreign-lib
   [entity]
@@ -134,20 +135,18 @@
                                       nil
                                       module-map))))))
 
-(defrecord Transformer [options-entity]
+(defrecord Transformer [options-entity out-dir]
   p/Transformer
   (-transform [this input-fs]
-    (let [src-dir (fs/tmpdir!)
-          out-dir (fs/tmpdir!)]
+    (let [src-dir (fs/tmpdir!)]
       (fs/commit! input-fs src-dir)
-      (println "starting cljs build...")
-      (time
-        (cljs/build (.getCanonicalPath src-dir)
-                    (compiler-options options-entity out-dir)))
-      (println "ending cljs build...")
+      (log/info "Building CLJS...")
+      (cljs/build (.getCanonicalPath src-dir)
+        (compiler-options options-entity out-dir))
+      (log/info "CLJS build complete")
       (fs/add (fs/empty input-fs) out-dir))))
 
 (defn build-transformer
   "Constructor function for transformer component for a CLJS build"
   [entity]
-  (->Transformer (:arachne.cljs.build/compiler-options entity)))
+  (->Transformer (:arachne.cljs.build/compiler-options entity) (fs/tmpdir!)))

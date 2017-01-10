@@ -140,10 +140,13 @@
   (-transform [this input-fs]
     (let [src-dir (fs/tmpdir!)]
       (fs/commit! input-fs src-dir)
-      (log/info "Building CLJS...")
-      (cljs/build (.getCanonicalPath src-dir)
-        (compiler-options options-entity out-dir))
-      (log/info "CLJS build complete")
+      (log/info (format "Building ClojureScript [%s]" (:arachne/id this)))
+      (let [started (System/currentTimeMillis)]
+        (cljs/build (.getCanonicalPath src-dir)
+          (compiler-options options-entity out-dir))
+        (let [elapsed (- (System/currentTimeMillis) started)
+              elapsed-seconds (float (/ elapsed 1000))]
+          (log/info (format "ClojureScript build complete in %.2f seconds [%s]" elapsed-seconds (:arachne/id this)))))
       (fs/add (fs/empty input-fs) out-dir))))
 
 (defn build-transformer

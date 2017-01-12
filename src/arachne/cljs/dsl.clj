@@ -87,10 +87,10 @@
 (s/def ::compiler-options
   (s/keys
     :req-un [(or ::output-to ::modules)
-             ::output-dir
-             ::optimizations
              ::main]
-    :opt-un [::asset-path
+    :opt-un [::optimizations
+             ::output-dir
+             ::asset-path
              ::foreign-libs
              ::warnings
              ::closure-warnings
@@ -205,25 +205,25 @@
     :anon-fn-naming-policy :arachne.cljs.compiler-options/anon-fn-naming-policy identity
     :optimize-constants :arachne.cljs.compiler-options/optimize-constants identity))
 
-(s/def ::input ::core-specs/id)
+(defn- entity-ref
+  [eid-or-aid]
+  (if (= :eid (key eid-or-aid))
+    (val eid-or-aid)
+    {:arachne/id (val eid-or-aid)}))
 
 (s/def ::build-options
-  (s/keys* :req-un [::compiler-options]))
+  (u/keys** :req-un [::compiler-options]))
 
 (s/fdef build
   :args (s/cat :arachne-id ::core-specs/id
                :build-options ::build-options))
 
-(defn- input
-  "Return the entity map for an input, given its Arachne ID"
-  [aid]
-  {:arachne/id aid})
-
 (defdsl build
-  "Define ClojureScript compiler options by defining a Asset Transformer that builds ClojureScript"
+  "Define an asset transform which builds ClojureScript"
   [arachne-id & build-options]
-  (let [conformed (s/conform ::build-options build-options)
-        transformer (u/map-transform conformed {:arachne/id arachne-id
-                                                :arachne.component/constructor :arachne.cljs.build/build-transformer}
-                      :compiler-options :arachne.cljs.build/compiler-options compiler-options)]
-    (script/transact [transformer])))
+  (let [[_ conformed] (s/conform ::build-options build-options)
+        entity {:arachne/id arachne-id
+                :arachne.component/constructor :arachne.assets.pipeline/transform
+                :arachne.assets.transform/transformer {:arachne.component/constructor :arachne.cljs.build/build-transformer
+                                                       :arachne.cljs.build/compiler-options (compiler-options (:compiler-options conformed))}}]
+    (script/transact [entity])))

@@ -102,7 +102,8 @@
 (defn- append-path
   "Apped the given path suffix to a base path (a File)."
   [base suffix]
-  (let [suffix (or suffix "")]
+  (let [suffix (or suffix "")
+        suffix (if (= "/" suffix) "" suffix)]
     (.getCanonicalPath (io/file base suffix))))
 
 (defn update-if-present
@@ -135,21 +136,23 @@
                                       nil
                                       module-map))))))
 
-(defrecord Transformer [options-entity out-dir]
+(defrecord Transformer [build-id options-entity out-dir]
   p/Transformer
   (-transform [this input-fs]
     (let [src-dir (fs/tmpdir!)]
       (fs/commit! input-fs src-dir)
-      (log/info (format "Building ClojureScript [%s]" (:arachne/id this)))
+      (log/info (format "Building ClojureScript [%s]" build-id))
       (let [started (System/currentTimeMillis)]
-        (cljs/build (.getCanonicalPath src-dir)
-          (compiler-options options-entity out-dir))
+        (cljs/build (.getCanonicalPath src-dir) (compiler-options options-entity out-dir))
         (let [elapsed (- (System/currentTimeMillis) started)
               elapsed-seconds (float (/ elapsed 1000))]
-          (log/info (format "ClojureScript build complete in %.2f seconds [%s]" elapsed-seconds (:arachne/id this)))))
+          (log/info (format "ClojureScript build complete in %.2f seconds [%s]" elapsed-seconds build-id))))
       (fs/add (fs/empty input-fs) out-dir))))
 
 (defn build-transformer
   "Constructor function for transformer component for a CLJS build"
-  [entity]
-  (->Transformer (:arachne.cljs.build/compiler-options entity) (fs/tmpdir!)))
+  [cfg eid]
+  (let [entity (cfg/pull cfg '[:arachne.cljs.build/compiler-options
+                               {:arachne.assets.transform/_transformer [:arachne/id]}] eid)
+        id (-> entity :arachne.assets.transform/_transformer first :arachne/id)]
+    (->Transformer id (:arachne.cljs.build/compiler-options entity) (fs/tmpdir!))))

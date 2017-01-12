@@ -23,8 +23,13 @@
 (defn roundtrip-cfg
   "DSL function to build test config that doesn't do much with the config data."
   []
+
+  (a/input-dir :test/input :dir "test" :watch? false)
+
   (cljs/build :test/build
     :compiler-options *compiler-opts*)
+
+  (a/pipeline [:test/input :test/build])
 
   (ac/runtime :test/rt [:test/build]))
 
@@ -44,7 +49,8 @@
           opts (cfg/q cfg '[:find ?co .
                             :where
                             [?b :arachne/id :test/build]
-                            [?b :arachne.cljs.build/compiler-options ?co]])]
+                            [?b :arachne.assets.transform/transformer ?t]
+                            [?t :arachne.cljs.build/compiler-options ?co]])]
       (@#'build/extract (cfg/pull cfg '[*] opts)))))
 
 
@@ -59,16 +65,21 @@
   [output-dir watch]
 
   ;; for all the ClojureScript compiler options, all paths are relative to the output fileset
-  (cljs/build :test/builder
-    :compiler-options {:output-to "js/main.js"
-                       :output-dir "js"
-                       :asset-path "js"
-                       :optimizations :none
-                       :main 'arachne.cljs.example})
+  (def opts {:output-to "main.js"
+             :asset-path "js"
+             :output-dir "js"
+             :optimizations :none
+             :main 'arachne.cljs.example})
 
-  (a/input-dir :test/input "test" :watch? watch)
-  (a/transform :test/build :test/input :test/builder)
-  (a/output-dir :test/output :test/build output-dir)
+  (a/input-dir :test/input :dir "test" :watch? watch)
+
+  (cljs/build :test/build
+    :compiler-options opts)
+
+  (a/output-dir :test/output :dir output-dir)
+
+  (a/pipeline [:test/input :test/build] [:test/build :test/output])
+
   (ac/runtime :test/rt [:test/output]))
 
 (deftest basic-build
@@ -78,7 +89,6 @@
         rt (component/start (rt/init cfg [:arachne/id :test/rt]))
         result (slurp (io/file output-dir "js/arachne/cljs/example.js"))]
     (is (re-find #"Hello world!" result))))
-
 
 (comment
 

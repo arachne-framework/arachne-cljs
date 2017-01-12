@@ -5,7 +5,7 @@
   "Schema for the module"
   (concat
 
-    (m/type :arachne.cljs/Build [:arachne/Component]
+    (m/type :arachne.cljs/Build [:arachne.assets/Transformer]
       "A ClojureScript asset transformer"
       (m/attr :arachne.cljs.build/compiler-options :one :component :arachne.cljs/CompilerOptions
         "ClojureScript compiler options for this build"))

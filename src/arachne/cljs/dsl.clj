@@ -163,7 +163,7 @@
                :arachne.cljs.closure-define/annotate annotate})
          defines-map)))
 
-(defn- compiler-options
+(defn compiler-options
   "Given a conformed map of compiler options, return an entity map for a arachne.cljs/CompilerOptions entity."
   [opts]
   (u/map-transform opts {}

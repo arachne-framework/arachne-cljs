@@ -113,10 +113,10 @@
     (apply update m k f args)
     m))
 
-(defn- compiler-options
+(defn compiler-options
   "Return a map of ClojureScript compiler options, ready to use.
 
-  Takes the config, the eid of the CompilerOptions entity, ad a File of the absolute output directory"
+  Takes the config, the eid of the CompilerOptions entity, and a File of the absolute output directory"
   [options-entity out-dir]
   (-> (extract options-entity)
     (update-if-present :output-to #(append-path out-dir %))

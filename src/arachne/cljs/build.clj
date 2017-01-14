@@ -142,7 +142,6 @@
   (let [options-entity (:arachne.cljs.build/compiler-options component)
         out-dir (fs/tmpdir!)
         build-id (:arachne/id component)]
-    (println "building new transducer")
     (map (fn [input-fs]
            (let [src-dir (fs/tmpdir!)]
              (fs/commit! input-fs src-dir)

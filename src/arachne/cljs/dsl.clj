@@ -223,7 +223,7 @@
   [arachne-id & build-options]
   (let [[_ conformed] (s/conform ::build-options build-options)
         entity {:arachne/id arachne-id
-                :arachne.component/constructor :arachne.assets.pipeline/transform
-                :arachne.assets.transform/transformer {:arachne.component/constructor :arachne.cljs.build/build-transformer
-                                                       :arachne.cljs.build/compiler-options (compiler-options (:compiler-options conformed))}}]
+                :arachne.component/constructor :arachne.assets.pipeline/transducer
+                :arachne.assets.transducer/constructor :arachne.cljs.build/build-transducer
+                :arachne.cljs.build/compiler-options (compiler-options (:compiler-options conformed))}]
     (script/transact [entity])))

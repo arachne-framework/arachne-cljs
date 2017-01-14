@@ -136,23 +136,21 @@
                                       nil
                                       module-map))))))
 
-(defrecord Transformer [build-id options-entity out-dir]
-  p/Transformer
-  (-transform [this input-fs]
-    (let [src-dir (fs/tmpdir!)]
-      (fs/commit! input-fs src-dir)
-      (log/info (format "Building ClojureScript [%s]" build-id))
-      (let [started (System/currentTimeMillis)]
-        (cljs/build (.getCanonicalPath src-dir) (compiler-options options-entity out-dir))
-        (let [elapsed (- (System/currentTimeMillis) started)
-              elapsed-seconds (float (/ elapsed 1000))]
-          (log/info (format "ClojureScript build complete in %.2f seconds [%s]" elapsed-seconds build-id))))
-      (fs/add (fs/empty input-fs) out-dir))))
-
-(defn build-transformer
-  "Constructor function for transformer component for a CLJS build"
-  [cfg eid]
-  (let [entity (cfg/pull cfg '[:arachne.cljs.build/compiler-options
-                               {:arachne.assets.transform/_transformer [:arachne/id]}] eid)
-        id (-> entity :arachne.assets.transform/_transformer first :arachne/id)]
-    (->Transformer id (:arachne.cljs.build/compiler-options entity) (fs/tmpdir!))))
+(defn build-transducer
+  "Return a transducer over filesets that builds ClojureScript files"
+  [component]
+  (let [options-entity (:arachne.cljs.build/compiler-options component)
+        out-dir (fs/tmpdir!)
+        build-id (:arachne/id component)]
+    (println "building new transducer")
+    (map (fn [input-fs]
+           (let [src-dir (fs/tmpdir!)]
+             (fs/commit! input-fs src-dir)
+             (log/info (format "Building ClojureScript [%s]" build-id))
+             (let [started (System/currentTimeMillis)
+                   cljs-opts (compiler-options options-entity out-dir)]
+               (cljs/build (.getCanonicalPath src-dir) cljs-opts)
+               (let [elapsed (- (System/currentTimeMillis) started)
+                     elapsed-seconds (float (/ elapsed 1000))]
+                 (log/info (format "ClojureScript build complete in %.2f seconds [%s]" elapsed-seconds build-id))))
+             (fs/add (fs/empty input-fs) out-dir))))))

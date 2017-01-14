@@ -49,8 +49,7 @@
           opts (cfg/q cfg '[:find ?co .
                             :where
                             [?b :arachne/id :test/build]
-                            [?b :arachne.assets.transform/transformer ?t]
-                            [?t :arachne.cljs.build/compiler-options ?co]])]
+                            [?b :arachne.cljs.build/compiler-options ?co]])]
       (@#'build/extract (cfg/pull cfg '[*] opts)))))
 
 

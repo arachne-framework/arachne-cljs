@@ -24,10 +24,9 @@
   "DSL function to build test config that doesn't do much with the config data."
   []
 
-  (a/input-dir :test/input :dir "test" :watch? false)
+  (a/input-dir :test/input "test")
 
-  (cljs/build :test/build
-    :compiler-options *compiler-opts*)
+  (cljs/build :test/build *compiler-opts*)
 
   (a/pipeline [:test/input :test/build])
 
@@ -70,12 +69,11 @@
              :optimizations :none
              :main 'arachne.cljs.example})
 
-  (a/input-dir :test/input :dir "test" :watch? watch)
+  (a/input-dir :test/input "test" :watch? watch)
 
-  (cljs/build :test/build
-    :compiler-options opts)
+  (cljs/build :test/build opts)
 
-  (a/output-dir :test/output :dir output-dir)
+  (a/output-dir :test/output output-dir)
 
   (a/pipeline [:test/input :test/build] [:test/build :test/output])
 

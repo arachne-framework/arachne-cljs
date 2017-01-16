@@ -2,9 +2,9 @@
   "DSL code to handle ClojureScript compiler options"
   (:require [clojure.spec :as s]
             [arachne.error :as e :refer [deferror error]]
-            [arachne.core.dsl.specs :as core-specs]
+            [arachne.core.dsl :as core]
             [arachne.core.config :as cfg]
-            [arachne.core.config.init :as script :refer [defdsl]]
+            [arachne.core.config.script :as script :refer [defdsl]]
             [arachne.core.util :as u]))
 
 (s/def ::string (s/and string? #(not-empty %)))
@@ -205,25 +205,24 @@
     :anon-fn-naming-policy :arachne.cljs.compiler-options/anon-fn-naming-policy identity
     :optimize-constants :arachne.cljs.compiler-options/optimize-constants identity))
 
-(defn- entity-ref
-  [eid-or-aid]
-  (if (= :eid (key eid-or-aid))
-    (val eid-or-aid)
-    {:arachne/id (val eid-or-aid)}))
-
-(s/def ::build-options
-  (u/keys** :req-un [::compiler-options]))
-
-(s/fdef build
-  :args (s/cat :arachne-id ::core-specs/id
-               :build-options ::build-options))
-
 (defdsl build
-  "Define an asset transform which builds ClojureScript"
-  [arachne-id & build-options]
-  (let [[_ conformed] (s/conform ::build-options build-options)
-        entity {:arachne/id arachne-id
-                :arachne.component/constructor :arachne.assets.pipeline/transducer
-                :arachne.assets.transducer/constructor :arachne.cljs.build/build-transducer
-                :arachne.cljs.build/compiler-options (compiler-options (:compiler-options conformed))}]
-    (script/transact [entity])))
+  "Define an Asset transducer component which builds ClojureScript.
+
+  Arguments are:
+
+  - arachne-id (optional): the Arachne ID of the component
+  - compiler-options: A ClojureScript compiler options map. See the ClojureScript documentation
+    for possible values. The only difference is that options which specify paths (:output-to, :output-dir,
+    :preamble, :externs, etc.) will relative to the asset fileset rather than the process as a whole.
+
+  Returns the entity ID of the newly-created component."
+
+  (s/cat :arachne-id (s/? ::core/arachne-id) :compiler-opts ::compiler-options)
+  [<arachne-id> compiler-opts]
+  (let [tid (cfg/tempid)
+        entity (u/mkeep {:db/id tid
+                         :arachne/id (:arachne-id &args)
+                         :arachne.component/constructor :arachne.assets.pipeline/transducer
+                         :arachne.assets.transducer/constructor :arachne.cljs.build/build-transducer
+                         :arachne.cljs.build/compiler-options (compiler-options (:compiler-opts &args))})]
+    (script/transact [entity] tid)))

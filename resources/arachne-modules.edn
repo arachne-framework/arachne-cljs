@@ -1,4 +1,0 @@
-[{:arachne.module/name :org.arachne-framework/arachne-cljs
-  :arachne.module/schema arachne.cljs/schema
-  :arachne.module/configure arachne.cljs/configure
-  :arachne.module/dependencies [:org.arachne-framework/arachne-assets]}]

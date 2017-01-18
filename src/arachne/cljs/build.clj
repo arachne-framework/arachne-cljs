@@ -9,7 +9,7 @@
     [arachne.assets.pipeline :as p]
     [arachne.fileset :as fs]
     [clojure.java.io :as io]
-    [clojure.tools.logging :as log]))
+    [arachne.log :as log]))
 
 (defn- foreign-lib
   [entity]
@@ -143,11 +143,13 @@
     (map (fn [input-fs]
            (let [src-dir (fs/tmpdir!)]
              (fs/commit! input-fs src-dir)
-             (log/info (format "Building ClojureScript [%s]" build-id))
+             (log/info :msg "Building ClojureScript" :build-id build-id)
              (let [started (System/currentTimeMillis)
                    cljs-opts (compiler-options options-entity out-dir)]
                (cljs/build (.getCanonicalPath src-dir) cljs-opts)
                (let [elapsed (- (System/currentTimeMillis) started)
                      elapsed-seconds (float (/ elapsed 1000))]
-                 (log/info (format "ClojureScript build complete in %.2f seconds [%s]" elapsed-seconds build-id))))
+                 (log/info :msg (format "ClojureScript build complete in %.2f seconds" elapsed-seconds)
+                           :build-id build-id
+                           :elapsed-ms elapsed)))
              (fs/add (fs/empty input-fs) out-dir))))))

@@ -6,12 +6,12 @@
             [arachne.core.config :as cfg]
             [arachne.core.util :as u]))
 
-(defn schema
+(defn ^:no-doc schema
   "Return the schema for the module"
   []
   schema/schema)
 
-(defn configure
+(defn ^:no-doc configure
   "Configure the module"
   [cfg]
   cfg)

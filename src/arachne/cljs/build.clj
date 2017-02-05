@@ -104,14 +104,14 @@
         suffix (if (= "/" suffix) "" suffix)]
     (.getCanonicalPath (io/file base suffix))))
 
-(defn update-if-present
+(defn- update-if-present
   "Like clojure.core/update, but does not alter the map if the key is not present"
   [m k f & args]
   (if (contains? m k)
     (apply update m k f args)
     m))
 
-(defn compiler-options
+(defn ^:no-doc compiler-options
   "Return a map of ClojureScript compiler options, ready to use.
 
   Takes the config, the eid of the CompilerOptions entity, and a File of the absolute output directory"
@@ -134,8 +134,8 @@
                                       nil
                                       module-map))))))
 
-(defn build-transducer
-  "Return a transducer over filesets that builds ClojureScript files"
+(defn ^:no-doc build-transducer
+  "Constructor function that returns a transducer over filesets, that builds ClojureScript files"
   [component]
   (let [options-entity (:arachne.cljs.build/compiler-options component)
         out-dir (fs/tmpdir!)

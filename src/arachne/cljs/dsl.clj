@@ -163,7 +163,7 @@
                :arachne.cljs.closure-define/annotate annotate})
          defines-map)))
 
-(defn compiler-options
+(defn ^:no-doc compiler-options
   "Given a conformed map of compiler options, return an entity map for a arachne.cljs/CompilerOptions entity."
   [opts]
   (u/map-transform opts {}
@@ -206,14 +206,15 @@
     :optimize-constants :arachne.cljs.compiler-options/optimize-constants identity))
 
 (defdsl build
-  "Define an Asset transducer component which builds ClojureScript.
+  "Define an asset pipeline component which builds ClojureScript.
 
   Arguments are:
 
   - arachne-id (optional): the Arachne ID of the component
   - compiler-options: A ClojureScript compiler options map. See the ClojureScript documentation
-    for possible values. The only difference is that options which specify paths (:output-to, :output-dir,
-    :preamble, :externs, etc.) will relative to the asset fileset rather than the process as a whole.
+    for possible values. The only difference is that options which specify paths (:output-to,
+    :output-dir, :preamble, :externs, etc.) will relative to the asset fileset rather than the
+    process as a whole.
 
   Returns the entity ID of the newly-created component."
 

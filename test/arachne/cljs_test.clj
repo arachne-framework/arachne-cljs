@@ -24,13 +24,13 @@
   "DSL function to build test config that doesn't do much with the config data."
   []
 
-  (a/input-dir :test/input "test")
+  (ac/id :test/input (a/input-dir "test"))
 
-  (cljs/build :test/build *compiler-opts*)
+  (ac/id :test/build (cljs/build *compiler-opts*))
 
   (a/pipeline [:test/input :test/build])
 
-  (ac/runtime :test/rt [:test/build]))
+  (ac/id :test/rt (ac/runtime [:test/build])))
 
 (defn- normalize
   "Convert all nested sequences to sets so items can be compared in an order-agnostic way"
@@ -69,15 +69,15 @@
              :optimizations :none
              :main 'arachne.cljs.example})
 
-  (a/input-dir :test/input "test" :watch? watch)
+  (ac/id :test/input (a/input-dir "test" :watch? watch))
 
-  (cljs/build :test/build opts)
+  (ac/id :test/build (cljs/build opts))
 
-  (a/output-dir :test/output output-dir)
+  (ac/id :test/output (a/output-dir output-dir))
 
   (a/pipeline [:test/input :test/build] [:test/build :test/output])
 
-  (ac/runtime :test/rt [:test/output]))
+  (ac/id :test/rt (ac/runtime [:test/output])))
 
 (deftest basic-build
   (let [output-dir (fs/tmpdir!)

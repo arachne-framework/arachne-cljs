@@ -210,7 +210,6 @@
 
   Arguments are:
 
-  - arachne-id (optional): the Arachne ID of the component
   - compiler-options: A ClojureScript compiler options map. See the ClojureScript documentation
     for possible values. The only difference is that options which specify paths (:output-to,
     :output-dir, :preamble, :externs, etc.) will relative to the asset fileset rather than the
@@ -218,11 +217,10 @@
 
   Returns the entity ID of the newly-created component."
 
-  (s/cat :arachne-id (s/? ::core/arachne-id) :compiler-opts ::compiler-options)
-  [<arachne-id> compiler-opts]
+  (s/cat :compiler-opts ::compiler-options)
+  [compiler-opts]
   (let [tid (cfg/tempid)
         entity (u/mkeep {:db/id tid
-                         :arachne/id (:arachne-id &args)
                          :arachne.component/constructor :arachne.assets.pipeline/transducer
                          :arachne.assets.transducer/constructor :arachne.cljs.build/build-transducer
                          :arachne.cljs.build/compiler-options (compiler-options (:compiler-opts &args))})]

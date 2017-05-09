@@ -1,7 +1,7 @@
 (ns arachne.cljs.build
   (:require
     [cljs.build.api :as cljs]
-    [clojure.spec :as s]
+    [clojure.spec.alpha :as s]
     [arachne.cljs.schema :as schema]
     [arachne.error :as e :refer [deferror error]]
     [arachne.core.config :as cfg]

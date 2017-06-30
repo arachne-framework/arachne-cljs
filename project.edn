@@ -5,7 +5,7 @@
  :deps [[org.clojure/clojure "1.9.0-alpha16" :scope "provided"]
         [org.clojure/clojurescript "1.9.542"
          :exclusions [org.clojure/clojure]]
-        [org.arachne-framework/arachne-assets "0.2.0-master-0057-dde90c5"
+        [org.arachne-framework/arachne-assets "0.2.0-master-0058-68adc43"
          :exclusions [org.clojure/tools.reader]]
         [org.clojure/test.check "0.9.0" :scope "test"
          :exclusions [org.clojure/clojure]]
